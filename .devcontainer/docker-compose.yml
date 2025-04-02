@@ -1,0 +1,20 @@
+services:
+  python:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: python-app-image # イメージ名を明示的に設定
+    volumes:
+      - ../app:/app:cached
+      - ../.env:/.env:cached
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
+    ports:
+      - "8000:8000" # この行を追加
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - dev_network
+
+networks:
+  dev_network:
+    driver: bridge
