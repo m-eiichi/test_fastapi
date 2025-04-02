@@ -1,12 +1,11 @@
 fastapi
 uvicorn
-strawberry-graphql
 strawberry-graphql[fastapi]
 sqlalchemy 
 databases 
 asyncpg
-psycopg2-binary
+# psycopg2-binary　※asyncpgを使用するためコメントアウト
 alembic
 pydantic
-psycopg2
+# psycopg2　※asyncpgを使用するためコメントアウト
 python-dotenv
