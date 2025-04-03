@@ -13,9 +13,9 @@ class CustomerSchema(BaseModel):
     active: Optional[int] = None# 顧客がアクティブかどうか（真偽値）
     create_date: Optional[datetime] = None # 顧客の作成日（文字列型、日付を文字列として格納）
     last_update: Optional[datetime] = None # 最後の更新日（文字列型、日付を文字列として格納）
-    
 
     # Pydantic の設定
     class Config:
         # SQLAlchemy の ORM モデルから Pydantic モデルに変換する際に、属性として定義されたものを利用できるようにする設定
         from_attributes = True
+

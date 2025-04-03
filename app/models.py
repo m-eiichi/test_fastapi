@@ -17,4 +17,15 @@ class Customer(Base):
     create_date = Column( DateTime,nullable=False)
     last_update = Column( DateTime,nullable=False)
 
+class Payment(Base):
+    __tablename__ = "payment"  # PostgreSQL のテーブル名と一致すること
+
+    payment_id = Column(Integer, primary_key=True, index=True)
+    customer_id = Column(Integer, nullable=False)
+    staff_id = Column(Integer, nullable=False)
+    rental_id = Column(Integer, nullable=False)
+    amount = Column(Integer, nullable=False)
+    payment_date = Column(DateTime, nullable=False)
+
+
 

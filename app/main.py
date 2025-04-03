@@ -1,7 +1,6 @@
 # main.py
-
 import strawberry  # Strawberry (GraphQL ライブラリ) をインポート
-from graphql_schema import Query  # GraphQLのQueryスキーマをインポート
+from graphql_schema.index import Query  # GraphQLのQueryスキーマをインポート
 
 # GraphQLスキーマを作成（Queryをスキーマのルートとして設定）
 schema = strawberry.Schema(query=Query)
