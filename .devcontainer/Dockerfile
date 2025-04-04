@@ -7,7 +7,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 環境変数を設定（Pythonのモジュール検索パスを追加）
-ENV PYTHONPATH=/app
+COPY entrypoint.sh /usr/local/bin/
 
+RUN chmod +x /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 # CMD ["python"]
