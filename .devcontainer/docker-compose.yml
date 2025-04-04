@@ -1,9 +1,8 @@
 services:
-  python:
+  graphql-api:
     build:
       context: .
       dockerfile: Dockerfile
-    image: python-app-image # イメージ名を明示的に設定
     volumes:
       - ../app:/app:cached
       - ../.env:/.env:cached
