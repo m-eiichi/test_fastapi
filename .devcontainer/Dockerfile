@@ -1,12 +1,5 @@
 FROM python:3.11
 
-# 必要なツールをインストール
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    python3-pip \
-    && rm -rf /var/lib/apt/lists/* 
-
 # 作業ディレクトリ
 WORKDIR /app
 
