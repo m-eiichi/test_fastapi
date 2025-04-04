@@ -9,3 +9,4 @@ alembic
 pydantic
 # psycopg2　
 python-dotenv
+sqlacodegen

@@ -13,3 +13,22 @@
     }
   }
 }
+
+
+
+// {
+//   "name": "My Dev Container",
+//   "build": {
+//     "dockerfile": "Dockerfile",
+//     "context": ".."
+//   },
+//   "runArgs": ["--env-file", ".env"],  // .env を読み込む
+//   "postCreateCommand": "/bin/sh /app/entrypoint.sh",
+//   "remoteUser": "vscode",
+//   "mounts": [
+//     "source=${localWorkspaceFolder},target=/app,type=bind"
+//   ],
+//   "extensions": [
+//     "ms-python.python"
+//   ]
+// }
