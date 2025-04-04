@@ -1,14 +1,17 @@
 {
-  "name": "Python Dev Container",
-  "dockerComposeFile": "docker-compose.yml",
-  "service": "python",
-  "workspaceFolder": "/app",
+  "name": "fastapi-neon",
+  "dockerComposeFile": ["docker-compose.yml"], // 配列形式に変更
+  "service": "graphql-api", // サービス名は docker-compose.yml と一致しているか確認
+  "workspaceFolder": "/app", // コンテナ内の作業ディレクトリに一致
   "customizations": {
     "vscode": {
-      "extensions": ["ms-python.python", "ms-python.vscode-pylance"],
+      "extensions": [
+        "ms-python.python", // Python拡張
+        "ms-python.vscode-pylance" // Pylance拡張
+      ],
       "settings": {
-        "python.defaultInterpreterPath": "/usr/local/bin/python",
-        "terminal.integrated.defaultProfile.linux": "bash"
+        "python.defaultInterpreterPath": "/usr/local/bin/python", // Pythonインタープリターのパス
+        "terminal.integrated.defaultProfile.linux": "bash" // ターミナルのデフォルトプロファイル設定
       }
     }
   }
