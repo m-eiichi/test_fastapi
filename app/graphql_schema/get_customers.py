@@ -3,7 +3,7 @@ from typing import List, Optional
 from datetime import datetime
 
 from db import SessionLocal
-from models import Customer as CustomerModel
+from sql_models import Customer as CustomerModel
 from schemas.customer import CustomerSchema
 import strawberry
 
