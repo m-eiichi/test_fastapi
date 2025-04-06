@@ -3,7 +3,7 @@ from typing import List, Optional
 from datetime import datetime
 
 from db import SessionLocal
-from sql_models import Payment as PaymentModel
+from models.sql_models import Payment as PaymentModel
 from schemas.payment import PaymentSchema
 import strawberry
 
