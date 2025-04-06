@@ -26,6 +26,8 @@ from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+import os
+from dotenv import load_dotenv
 import models.sql_models
 from graphql_types import generate_query, generate_mutation
 
@@ -46,8 +48,8 @@ engine = create_engine(DATABASE_URL, echo=DEBUG_MODE)
 Session = sessionmaker(bind=engine)
 
 # GraphQLクエリとミューテーションを動的に生成
-Query = generate_query(models)
-Mutation = generate_mutation(models)
+Query = generate_query(models.sql_models)
+Mutation = generate_mutation(models.sql_models)
 
 # Strawberry GraphQL サーバーのセットアップ
 schema = strawberry.Schema(query=Query, mutation=Mutation)
