@@ -2,7 +2,7 @@ import strawberry
 from sqlalchemy import inspect, create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeMeta
 from sqlalchemy.ext.declarative import declarative_base
-from typing import List, Type, Optional
+from typing import Any, List, Optional, Type
 import os
 from dotenv import load_dotenv
 
@@ -27,28 +27,17 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # SQLAlchemyモデルクラスからGraphQL型を動的に生成する関数
 def generate_graphql_type(model_class: Type[DeclarativeMeta]):
-    model_columns = inspect(model_class).c
+    # GraphQLタイプを一度だけ生成
+    graphql_type_name = f'{model_class.__name__}Type'
 
-    annotations = {}
-    for column in model_columns:
-        field_type = str
-        if column.type.__class__.__name__ == 'Integer':
-            field_type = int
-        elif column.type.__class__.__name__ == 'DateTime':
-            field_type = str  # 日付型も文字列で
-        annotations[column.name] = field_type
+    if hasattr(model_class, '__strawberry_definition__'):
+        return model_class.__strawberry_definition__
 
-    # 動的クラス作成
-    graphql_type = type(
-        f"{model_class.__name__}Type",
-        (),
-        {
-            "__annotations__": annotations,
-            "__module__": __name__,
-        }
-    )
+    # 新しく生成する
+    graphql_type = strawberry.type(model_class, name=graphql_type_name)
+    model_class.__strawberry_definition__ = graphql_type
+    return graphql_type
 
-    return strawberry.type(graphql_type)
 
 def generate_all_graphql_types(models_module):
     """
@@ -61,32 +50,61 @@ def generate_all_graphql_types(models_module):
             graphql_types[name] = generate_graphql_type(model)
     return graphql_types
 
-def generate_query(models_module):
+def generate_query(models_module, base_class):
     query_fields = {}
 
     for name in dir(models_module):
         model = getattr(models_module, name)
-        if isinstance(model, type) and issubclass(model, Base) and hasattr(model, '__tablename__'):
+        if isinstance(model, type) and issubclass(model, base_class) and hasattr(model, '__tablename__'):
             graphql_type = generate_graphql_type(model)
-            query_fields[f'get_{name.lower()}s'] = strawberry.field(lambda self, info: get_items(model))
+
+            # ラムダの代わりに明示的な関数でクロージャ
+            def make_get_items_resolver(model):
+                def resolver(self, info) -> list[graphql_type]:  # 型ヒントもOK
+                    return get_items(model)
+                return resolver
+
+            query_fields[f'get_{name.lower()}s'] = strawberry.field(resolver=make_get_items_resolver(model))
 
     query_class = type("Query", (), query_fields)
     return strawberry.type(query_class)
 
-def generate_mutation(models_module):
+
+
+def generate_mutation(models_module, base_class):
     mutation_fields = {}
 
     for name in dir(models_module):
         model = getattr(models_module, name)
-        if isinstance(model, type) and issubclass(model, Base) and hasattr(model, '__tablename__'):
+        if isinstance(model, type) and issubclass(model, base_class) and hasattr(model, '__tablename__'):
             graphql_type = generate_graphql_type(model)
-            mutation_fields[f'create_{name.lower()}'] = strawberry.mutation(lambda self, obj: create_item(model, obj))
-            mutation_fields[f'update_{name.lower()}'] = strawberry.mutation(lambda self, obj: update_item(model, obj))
-            mutation_fields[f'delete_{name.lower()}'] = strawberry.mutation(lambda self, id: delete_item(model, id))
 
-    # 動的にクラスを定義して strawberry.type でラップ
+            def make_create(m, g_type):
+                @strawberry.mutation
+                def create(self, obj: Any) -> g_type:  # 👈 Here: Return type is graphql_type
+                    return create_item(m, obj)
+                return create
+
+            def make_update(m, g_type):
+                @strawberry.mutation
+                def update(self, obj: Any) -> g_type:
+                    return update_item(m, obj)
+                return update
+
+            def make_delete(m):
+                @strawberry.mutation
+                def delete(self, id: int) -> bool:  # 👈 Explicit bool return
+                    return delete_item(m, id)
+                return delete
+
+            mutation_fields[f'create_{name.lower()}'] = make_create(model, graphql_type)
+            mutation_fields[f'update_{name.lower()}'] = make_update(model, graphql_type)
+            mutation_fields[f'delete_{name.lower()}'] = make_delete(model)
+
     mutation_class = type("Mutation", (), mutation_fields)
     return strawberry.type(mutation_class)
+
+
 
 def get_items(model):
     """

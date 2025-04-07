@@ -1,8 +1,7 @@
 #!/bin/bash
 set -e
 
-GENERATED_DIR="/app/models"
-GENERATED_FILE="$GENERATED_DIR/sql_models.py"
+GENERATED_FILE="/app/models.py"
 
 if [ ! -f "$GENERATED_FILE" ]; then
     echo "sqlacodegen を初回実行中..."
