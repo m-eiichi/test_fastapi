@@ -2,12 +2,13 @@ fastapi
 uvicorn
 strawberry-graphql[fastapi]
 sqlalchemy 
+psycopg2　
+python-dotenv
+sqlacodegen
+pydantic
+pydantic-sqlalchemy
+
 # databases 
 # asyncpg
 # psycopg2-binary
 # alembic
-# pydantic
-psycopg2　
-python-dotenv
-sqlacodegen
-# pydantic-sqlalchemy
