@@ -6,7 +6,8 @@ from sqlalchemy.orm import sessionmaker
 import os
 from dotenv import load_dotenv
 import models
-from graphql_types import generate_query, generate_mutation
+from schema import schema 
+# from graphql_types import generate_query, generate_mutation
 
 print(dir(models.sql_models))
 # SQLAlchemyのセットアップ
@@ -25,12 +26,12 @@ DEBUG_MODE = os.getenv("DEBUG_MODE", "False").lower() == "true"
 engine = create_engine(DATABASE_URL, echo=DEBUG_MODE)
 Session = sessionmaker(bind=engine)
 
-# GraphQLクエリとミューテーションを動的に生成
-Query = generate_query(models)
-Mutation = generate_mutation(models)
+# # GraphQLクエリとミューテーションを動的に生成
+# Query = generate_query(models)
+# Mutation = generate_mutation(models)
 
-# Strawberry GraphQL サーバーのセットアップ
-schema = strawberry.Schema(query=Query, mutation=Mutation)
+# # Strawberry GraphQL サーバーのセットアップ
+# schema = strawberry.Schema(query=Query, mutation=Mutation)
 graphql_app = GraphQLRouter(schema)
 
 # FastAPI アプリケーションを作成

@@ -1,3 +1,5 @@
+# Pydanticモデルを生成するためのスクリプト（現段階で生成したPydanticモデルは未使用）
+
 from sqlalchemy_to_pydantic import sqlalchemy_to_pydantic
 import models
 

@@ -1,3 +1,5 @@
+２をどうするが？
+
 Strawberry を使用して GraphQL API を実装する場合、SQLAlchemy モデルを自動生成した後に必要なステップを簡潔に説明します。以下の手順を順を追って実行することで、GraphQL API が完成します。
 
 1. SQLAlchemy モデルを自動生成
