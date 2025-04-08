@@ -4,7 +4,7 @@ strawberry-graphql[fastapi]
 sqlalchemy
 psycopg2
 python-dotenv
-sqlacodegen
+sqlacodegen #SQLAlchemy のリフレクションを使用する方法へ移行
 pydantic
 sqlalchemy-to-pydantic
 

@@ -1,170 +1,158 @@
-#　 fastapi（python）のテスト用
+Strawberry を使用して GraphQL API を実装する場合、SQLAlchemy モデルを自動生成した後に必要なステップを簡潔に説明します。以下の手順を順を追って実行することで、GraphQL API が完成します。
 
-sqlacodegenがsqlalchemyのバージョン2に対応していないためsqlalchemyバージョン1を使用
-1まではOK
+1. SQLAlchemy モデルを自動生成
+   まず、SQLAlchemy のモデルを自動的に生成した後、Strawberry 用の GraphQL スキーマを作成するために必要なステップを進めます。
 
-以下は、FastAPI で GraphQL API を通す際のフローの目次です。これを基に、実装のステップを整理していきます。
+すでに SQLAlchemy モデルは生成されていると仮定し、次のステップに進みます。
 
----
+2. Pydantic モデルを作成（Optional）
+   GraphQL クエリを介して受け取るデータをバリデーションするために、Pydantic モデルを使うことを推奨します。
 
-## 目次
+例えば、User モデルがある場合、以下のような Pydantic モデルを作成します。
 
-1. [`sqlacodegen` を使って、既存のデータベースから SQLAlchemy モデルを自動生成](#1-sqlacodegen-を使って既存のデータベースから-sqlalchemy-モデルを自動生成)
-    - 1.1. `sqlacodegen` のインストール
-    - 1.2. データベーススキーマからモデルの生成
+python
+コピーする
+編集する
+from pydantic import BaseModel
 
-2. [`sqlalchemy2-pydantic` を使って、SQLAlchemy モデルから Pydantic モデルを自動生成](#2-sqlalchemy2-pydantic-を使って-sqlalchemy-モデルから-pydantic-モデルを自動生成)
-    - 2.1. `sqlalchemy2-pydantic` のインストール
-    - 2.2. Pydantic モデルの生成
+class UserCreate(BaseModel):
+name: str
+email: str
 
-3. [SQLAlchemy と Pydantic を連携させる](#3-sqlalchemy-と-pydantic-を連携させる)
-    - 3.1. FastAPI と GraphQL の統合
-    - 3.2. GraphQL Query の実装
-    - 3.3. SQLAlchemy セッションとデータベース操作
+class UserUpdate(BaseModel):
+name: str
+email: str 3. Strawberry GraphQL 型の定義
+次に、SQLAlchemy モデルに対応する GraphQL タイプを定義します。これにより、GraphQL API のレスポンスとして使用されるオブジェクトを指定できます。
 
-4. [GraphQL クエリの実行](#4-graphql-クエリの実行)
-
-5. [ミューテーションの実装](#5-ミューテーションの実装)
-
----
-
-### 1. `sqlacodegen` を使って、既存のデータベースから SQLAlchemy モデルを自動生成
-
-#### 1.1. `sqlacodegen` のインストール
-
-```bash
-pip install sqlacodegen
-```
-
-#### 1.2. データベーススキーマからモデルの生成
-
-```bash
-sqlacodegen postgresql+psycopg2://user:password@localhost/mydatabase --outfile models.py
-```
-
----
-
-### 2. `sqlalchemy2-pydantic` を使って、SQLAlchemy モデルから Pydantic モデルを自動生成
-
-#### 2.1. `sqlalchemy2-pydantic` のインストール
-
-```bash
-pip install sqlalchemy2-pydantic
-```
-
-#### 2.2. Pydantic モデルの生成
-
-```python
-from sqlalchemy2_pydantic import sqlalchemy_to_pydantic
-from models import Actor  # sqlacodegenで生成されたActorモデル
-
-ActorPydantic = sqlalchemy_to_pydantic(Actor)
-```
-
----
-
-### 3. SQLAlchemy と Pydantic を連携させる
-
-#### 3.1. FastAPI と GraphQL の統合
-
-```bash
-pip install fastapi uvicorn strawberry-graphql[fastapi]
-```
-
-#### 3.2. GraphQL Query の実装
-
-```python
+python
+コピーする
+編集する
 import strawberry
-from fastapi import FastAPI
-from strawberry.fastapi import GraphQLRouter
+from .models import User
+
+@strawberry.type
+class UserType:
+id: int
+name: str
+email: str
+このように、Strawberry の@strawberry.type デコレーターを使って、SQLAlchemy の User モデルに対応する GraphQL タイプを作成します。
+
+4. データベース操作関数の作成（CRUD）
+   データの操作を行う関数（CRUD）を作成します。これは、SQLAlchemy を使ってデータベースに対する操作を抽象化したものです。
+
+すでに提供した汎用的な CRUD 関数を使用して、モデルに対する操作を実装します。
+
+python
+コピーする
+編集する
 from sqlalchemy.orm import Session
-from models import Actor  # sqlacodegenで生成されたActorモデル
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy2_pydantic import sqlalchemy_to_pydantic
+from .models import User
 
-# SQLAlchemyの設定
-SQLALCHEMY_DATABASE_URL = "postgresql+psycopg2://user:password@localhost/mydatabase"
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+def get_user(db: Session, user_id: int):
+return db.query(User).filter(User.id == user_id).first()
 
-# Pydanticモデル生成
-ActorPydantic = sqlalchemy_to_pydantic(Actor)
+def get_users(db: Session):
+return db.query(User).all()
 
-# GraphQL Query定義
+def create_user(db: Session, name: str, email: str):
+db_user = User(name=name, email=email)
+db.add(db_user)
+db.commit()
+db.refresh(db_user)
+return db_user
+
+def update_user(db: Session, user_id: int, name: str, email: str):
+user = db.query(User).filter(User.id == user_id).first()
+if user:
+user.name = name
+user.email = email
+db.commit()
+db.refresh(user)
+return user
+return None
+
+def delete_user(db: Session, user_id: int):
+user = db.query(User).filter(User.id == user_id).first()
+if user:
+db.delete(user)
+db.commit()
+return True
+return False 5. GraphQL Query と Mutation の定義
+Query および Mutation を定義して、GraphQL API のエンドポイントを実装します。これにより、データの取得（Query）やデータの変更（Mutation）を GraphQL 経由で行うことができます。
+
+python
+コピーする
+編集する
+import strawberry
+from typing import List
+from .crud import get_users, get_user, create_user, update_user, delete_user
+from .db import get_db
+
 @strawberry.type
 class Query:
+@strawberry.field
+def users(self) -> List[UserType]:
+db = next(get_db())
+return get_users(db)
+
     @strawberry.field
-    def get_actors(self) -> list[ActorPydantic]:
-        db: Session = SessionLocal()
-        actors = db.query(Actor).all()
-        return [ActorPydantic.from_orm(actor) for actor in actors]
+    def user(self, id: int) -> UserType | None:
+        db = next(get_db())
+        return get_user(db, id)
 
-# FastAPI + GraphQL 統合
-schema = strawberry.Schema(query=Query)
-
-app = FastAPI()
-graphql_app = GraphQLRouter(schema)
-app.include_router(graphql_app, prefix="/graphql")
-```
-
-#### 3.3. SQLAlchemy セッションとデータベース操作
-
-- `SessionLocal` を使って SQLAlchemy セッションを管理
-- `ActorPydantic.from_orm(actor)` を使用して、SQLAlchemy モデルのインスタンスを Pydantic モデルに変換
-
----
-
-### 4. GraphQL クエリの実行
-
-FastAPI が起動した後、`/graphql` エンドポイントにアクセスすることで、GraphQL API を実行できます。例えば、以下のような GraphQL クエリを実行できます。
-
-```graphql
-query {
-  getActors {
-    id
-    first_name
-    last_name
-  }
-}
-```
-
----
-
-### 5. ミューテーションの実装
-
-データの変更が必要な場合、ミューテーションを作成します。例えば、`Actor` の新規作成ミューテーションは次のように実装できます。
-
-```python
 @strawberry.type
 class Mutation:
+@strawberry.mutation
+def create_user(self, name: str, email: str) -> UserType:
+db = next(get_db())
+return create_user(db, name=name, email=email)
+
     @strawberry.mutation
-    def create_actor(self, first_name: str, last_name: str) -> ActorPydantic:
-        db: Session = SessionLocal()
-        actor = Actor(first_name=first_name, last_name=last_name)
-        db.add(actor)
-        db.commit()
-        db.refresh(actor)
-        return ActorPydantic.from_orm(actor)
+    def update_user(self, id: int, name: str, email: str) -> UserType:
+        db = next(get_db())
+        return update_user(db, id, name, email)
 
-schema = strawberry.Schema(query=Query, mutation=Mutation)
-```
+    @strawberry.mutation
+    def delete_user(self, id: int) -> bool:
+        db = next(get_db())
+        return delete_user(db, id)
 
-これにより、GraphQL 経由でデータを作成することができます。
+schema = strawberry.Schema(query=Query, mutation=Mutation) 6. FastAPI と統合
+最後に、Strawberry のスキーマを FastAPI に統合します。これにより、GraphQL エンドポイントが作成され、HTTP リクエストを通じて GraphQL クエリが実行できるようになります。
 
----
+python
+コピーする
+編集する
+from fastapi import FastAPI
+from strawberry.fastapi import GraphQLRouter
+from .schema import schema
 
-### まとめ
+app = FastAPI()
 
-FastAPI で GraphQL API を構築する際の流れを整理した結果、以下のステップで実装が進められます：
+# GraphQL エンドポイントを FastAPI に追加
 
-1. **SQLAlchemy モデルの自動生成**：  
-   - `sqlacodegen` を使用して既存のデータベースから SQLAlchemy モデルを生成。
+app.include_router(GraphQLRouter(schema)) 7. テストとデバッグ
+最後に、FastAPI サーバを起動し、GraphQL エンドポイントを確認します。
 
-2. **Pydantic モデルの自動生成**：  
-   - `sqlalchemy2-pydantic` を使用して、SQLAlchemy モデルから対応する Pydantic モデルを生成。
+bash
+コピーする
+編集する
+uvicorn app:app --reload
+http://127.0.0.1:8000/graphql にアクセスして、GraphQL Playground や GraphQL IDE を使って GraphQL クエリをテストします。
 
-3. **FastAPI と GraphQL の統合**：  
-   - `strawberry-graphql` を使用して GraphQL API を FastAPI に統合し、SQLAlchemy と Pydantic モデルを活用したデータの操作を行う。
+例えば、以下のような GraphQL クエリを送ることができます：
 
-これにより、FastAPI と GraphQL を使用した強力な API を構築できます。
+graphql
+コピーする
+編集する
+query {
+users {
+id
+name
+email
+}
+}
+まとめ
+SQLAlchemy モデル → Pydantic モデル（オプション） → GraphQL タイプ → CRUD 関数 → Query / Mutation → FastAPI 統合という流れで、Strawberry と FastAPI を使った GraphQL API を構築します。
+
+FastAPI に GraphQL を統合することで、API として利用可能な GraphQL エンドポイントが提供されます。
