@@ -21,5 +21,5 @@ engine = create_engine(DATABASE_URL, echo=DEBUG_MODE)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # 既存のテーブルを自動マッピング
-Base = automap_base()
-Base.prepare(autoload_with=engine) 
+# Base = automap_base()
+# Base.prepare(autoload_with=engine) 
