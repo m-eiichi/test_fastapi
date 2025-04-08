@@ -177,7 +177,7 @@ class Film(Base):
     last_update: Mapped[datetime.datetime] = mapped_column(DateTime, server_default=text('now()'))
     fulltext: Mapped[Any] = mapped_column(TSVECTOR)
     description: Mapped[Optional[str]] = mapped_column(Text)
-    release_year: Mapped[Optional[Any]] = mapped_column(DOMAIN('year', INTEGER(), constraint_name='year_check', not_null=False, check=<sqlalchemy.sql.elements.TextClause object at 0x7f0e40e3ce10>))
+    release_year: Mapped[Optional[Any]] = mapped_column(DOMAIN('year', INTEGER(), constraint_name='year_check', not_null=False, check=<sqlalchemy.sql.elements.TextClause object at 0x7f9aa6cab6d0>))
     length: Mapped[Optional[int]] = mapped_column(SmallInteger)
     rating: Mapped[Optional[str]] = mapped_column(Enum('G', 'PG', 'PG-13', 'R', 'NC-17', name='mpaa_rating'), server_default=text("'G'::mpaa_rating"))
     special_features: Mapped[Optional[list]] = mapped_column(ARRAY(Text()))

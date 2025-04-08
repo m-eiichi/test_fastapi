@@ -10,4 +10,5 @@ sqlalchemy
 psycopg2　
 python-dotenv
 sqlacodegen
+sqlalchemy-to-pydantic
 # pydantic-sqlalchemy

@@ -18,7 +18,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL が設定されていません")
 
-print(DATABASE_URL)
+
 
 # ログ出力を制御
 DEBUG_MODE = os.getenv("DEBUG_MODE", "False").lower() == "true"
@@ -27,15 +27,19 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # SQLAlchemyモデルクラスからGraphQL型を動的に生成する関数
 def generate_graphql_type(model_class: Type[DeclarativeMeta]):
-    # GraphQLタイプを一度だけ生成
     graphql_type_name = f'{model_class.__name__}Type'
 
-    if hasattr(model_class, '__strawberry_definition__'):
-        return model_class.__strawberry_definition__
+    if hasattr(model_class, '__strawberry_type__'):
+        return model_class.__strawberry_type__
 
-    # 新しく生成する
-    graphql_type = strawberry.type(model_class, name=graphql_type_name)
-    model_class.__strawberry_definition__ = graphql_type
+    attrs = {}
+    mapper = inspect(model_class)
+    for column in mapper.columns:
+        field_type = column.type.python_type
+        attrs[column.name] = strawberry.field(description=str(column.type))
+
+    graphql_type = strawberry.type(type(graphql_type_name, (), attrs))
+    model_class.__strawberry_type__ = graphql_type
     return graphql_type
 
 
@@ -46,6 +50,7 @@ def generate_all_graphql_types(models_module):
     graphql_types = {}
     for name in dir(models_module):
         model = getattr(models_module, name)
+        print(f"🔍 name={name}, model={model}")
         if isinstance(model, type) and issubclass(model, Base) and hasattr(model, '__tablename__'):
             graphql_types[name] = generate_graphql_type(model)
     return graphql_types
@@ -55,16 +60,21 @@ def generate_query(models_module, base_class):
 
     for name in dir(models_module):
         model = getattr(models_module, name)
+        print(f"🔍 name={name}, model={model}")
+
         if isinstance(model, type) and issubclass(model, base_class) and hasattr(model, '__tablename__'):
             graphql_type = generate_graphql_type(model)
 
-            # ラムダの代わりに明示的な関数でクロージャ
-            def make_get_items_resolver(model):
-                def resolver(self, info) -> list[graphql_type]:  # 型ヒントもOK
+            # graphql_type を make_get_items_resolver に引数として渡してクロージャ化
+            def make_get_items_resolver(model, graphql_type):
+                def resolver(self, info) -> list[graphql_type]:
                     return get_items(model)
                 return resolver
 
-            query_fields[f'get_{name.lower()}s'] = strawberry.field(resolver=make_get_items_resolver(model))
+            field_name = f'get_{name.lower()}s'
+            query_fields[field_name] = strawberry.field(
+                resolver=make_get_items_resolver(model, graphql_type)
+            )
 
     query_class = type("Query", (), query_fields)
     return strawberry.type(query_class)
