@@ -1,14 +1,28 @@
-# generate_pydantic_models.py
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
+from sqlalchemy_to_pydantic import sqlalchemy_to_pydantic
 import models
 
-# モデルリストを取得
-models_list = [getattr(models, attr) for attr in dir(models) if isinstance(getattr(models, attr), type) and issubclass(getattr(models, attr), models.Base)]
+models_list = [
+    getattr(models, attr)
+    for attr in dir(models)
+    if isinstance(getattr(models, attr), type)
+    and issubclass(getattr(models, attr), models.Base)
+    and getattr(models, attr) is not models.Base
+]
 
-# SQLAlchemyモデルからPydanticモデルを生成
 for model in models_list:
-    pydantic_model = sqlalchemy_to_pydantic(model)
-    globals()[f"{model.__name__}Pydantic"] = pydantic_model
+    # 全体のベースモデル
+    PydanticBase = sqlalchemy_to_pydantic(model)
 
-    # 生成されたPydanticモデルを確認するために出力
-    print(f"Pydantic model generated for {model.__name__}: {pydantic_model}")
+    # Read（すべてのフィールドを含める）
+    ReadModel = type(f"{model.__name__}Read", (PydanticBase,), {})
+
+    # Create/Update（主キーなどを除外したい場合はカスタマイズが必要）
+    # ここでは一旦ベースと同じにしている
+    CreateUpdateModel = type(f"{model.__name__}CreateUpdate", (PydanticBase,), {})
+
+    # 動作確認
+    print(f"✅ {model.__name__} → Read: {ReadModel.__name__}, CreateUpdate: {CreateUpdateModel.__name__}")
+
+    # 必要に応じて globals に追加
+    globals()[f"{model.__name__}Read"] = ReadModel
+    globals()[f"{model.__name__}CreateUpdate"] = CreateUpdateModel

@@ -6,8 +6,9 @@ psycopg2
 python-dotenv
 sqlacodegen
 pydantic
-pydantic-sqlalchemy
+sqlalchemy-to-pydantic
 
+# pydantic-sqlalchemy
 # databases 
 # asyncpg
 # psycopg2-binary
