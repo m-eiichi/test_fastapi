@@ -1,1 +1,1 @@
-psycopg2か何かでDBに接続
+psycopg2/asyncpgか何かでDBに接続
