@@ -3,10 +3,15 @@
 import os
 from models import Base
 from sqlalchemy import Integer, String, Boolean, Float, DateTime, Text
-import datetime
+import re
 
-OUTPUT_DIR = "./types"
+OUTPUT_DIR = "./graphql_types"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+
+
+def pascal_to_snake(name: str) -> str:
+    return re.sub(r'(?<!^)(?=[A-Z])', '_', name).lower()
 
 def sa_type_to_str(sa_type):
     if isinstance(sa_type, Integer):
@@ -39,7 +44,7 @@ def generate_all_types(base):
     for mapper in base.registry.mappers:
         cls = mapper.class_
         code = generate_strawberry_class(cls)
-        filename = os.path.join(OUTPUT_DIR, f"{cls.__name__.lower()}_type.py")
+        filename = os.path.join(OUTPUT_DIR, f"{pascal_to_snake(cls.__name__)}_type.py")
         with open(filename, "w", encoding="utf-8") as f:
             f.write(code)
         print(f"✅ Generated: {filename}")

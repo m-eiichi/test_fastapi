@@ -1,15 +1,14 @@
-import strawberry
+# import strawberry
 from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import os
 from dotenv import load_dotenv
-import models
-from schema import schema 
+from graphql_schema import schema 
 # from graphql_types import generate_query, generate_mutation
 
-print(dir(models.sql_models))
+
 # SQLAlchemyのセットアップ
 # .env から環境変数を読み込む
 if not load_dotenv():

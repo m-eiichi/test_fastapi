@@ -3,8 +3,8 @@
 import os
 import glob
 
-TYPES_DIR = "./types"
-OUTPUT_FILE = "./schema.py"
+TYPES_DIR = "./graphql_types"
+OUTPUT_FILE = "./graphql_schema.py"
 
 def snake_to_pascal(s: str) -> str:
     return ''.join(word.capitalize() for word in s.split('_'))
@@ -25,7 +25,7 @@ def generate_schema_file():
     for type_file in type_files:
         module_name = os.path.basename(type_file).replace(".py", "")
         class_name = snake_to_pascal(module_name.replace("_type", ""))
-        import_lines.append(f"from types.{module_name} import {class_name}")
+        import_lines.append(f"from graphql_types.{module_name} import {class_name}")
         query_lines.append(
             f"    @strawberry.field\n"
             f"    def all_{class_name.lower()}s(self) -> List[{class_name}]:\n"
