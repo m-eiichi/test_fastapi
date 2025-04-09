@@ -1,7 +1,7 @@
 # import strawberry
 from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
-from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 import os
 from dotenv import load_dotenv
@@ -22,15 +22,15 @@ print(DATABASE_URL)
 
 # ログ出力を制御
 DEBUG_MODE = os.getenv("DEBUG_MODE", "False").lower() == "true"
-engine = create_engine(DATABASE_URL, echo=DEBUG_MODE)
-Session = sessionmaker(bind=engine)
-
-# # GraphQLクエリとミューテーションを動的に生成
-# Query = generate_query(models)
-# Mutation = generate_mutation(models)
+engine = create_async_engine(DATABASE_URL, echo=DEBUG_MODE)
+# Session = sessionmaker(bind=engine)
+AsyncSessionLocal = sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+)
 
 # # Strawberry GraphQL サーバーのセットアップ
-# schema = strawberry.Schema(query=Query, mutation=Mutation)
 graphql_app = GraphQLRouter(schema)
 
 # FastAPI アプリケーションを作成
