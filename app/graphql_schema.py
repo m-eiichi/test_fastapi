@@ -53,20 +53,7 @@ class Query:
         # return [
         #     Actor()  # TODO: フィールドに合わせて初期値を設定
         # ]
-        return [
-        Actor(
-            actor_id=1,
-            first_name="John",
-            last_name="Doe",
-            last_update=datetime.datetime.utcnow()
-        ),
-        Actor(
-            actor_id=2,
-            first_name="Jane",
-            last_name="Smith",
-            last_update=datetime.datetime.utcnow()
-        )
-    ]
+        return []
     @strawberry.field
     def all_inventorys(self) -> List[Inventory]:
         return [

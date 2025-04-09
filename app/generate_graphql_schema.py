@@ -2,7 +2,7 @@
 
 import os
 import glob
-# import asyncpg
+import asyncpg
 # from typing import List
 
 TYPES_DIR = "./graphql_types"
@@ -18,47 +18,47 @@ def generate_schema_file():
         "import strawberry",
         "from typing import List",
         "import datetime",
-        # "import asyncpg",  # asyncpgをインポート
+        "import asyncpg",  # asyncpgをインポート
     ]
     query_lines = [
         "@strawberry.type",
         "class Query:",
     ]
 
-    for type_file in type_files:
-        module_name = os.path.basename(type_file).replace(".py", "")
-        class_name = snake_to_pascal(module_name.replace("_type", ""))
-
-        import_lines.append(f"from graphql_types.{module_name} import {class_name}")
-        query_lines.append(
-            f"    @strawberry.field\n"
-            f"    def all_{class_name.lower()}s(self) -> List[{class_name}]:\n"
-            f"        return []  # TODO: 実装"
-        )
-
     # for type_file in type_files:
     #     module_name = os.path.basename(type_file).replace(".py", "")
     #     class_name = snake_to_pascal(module_name.replace("_type", ""))
 
-    #     # インポート文を追加
     #     import_lines.append(f"from graphql_types.{module_name} import {class_name}")
-
-    #     # 非同期関数の生成
     #     query_lines.append(
-    #         f"    @strawberry.field"
-    #         f"\n    async def all_{class_name.lower()}s(self) -> List[{class_name}]:"
-    #         f"\n        return await fetch_{class_name.lower()}s()  # asyncpgでデータを取得"
+    #         f"    @strawberry.field\n"
+    #         f"    def all_{class_name.lower()}s(self) -> List[{class_name}]:\n"
+    #         f"        return []  # TODO: 実装"
     #     )
 
-    #     # 非同期関数を生成（asyncpgを使用してデータを取得）
-    #     query_lines.append(
-    #         f"\n"
-    #         f"async def fetch_{class_name.lower()}s():"
-    #         f"\n    conn = await asyncpg.connect(user='your_user', password='your_password', database='your_database', host='localhost')"
-    #         f"\n    rows = await conn.fetch('SELECT id, name FROM {class_name.lower()}')"
-    #         f"\n    await conn.close()"
-    #         f"\n    return [{class_name}(id=row['id'], name=row['name']) for row in rows]"
-    #     )
+    for type_file in type_files:
+        module_name = os.path.basename(type_file).replace(".py", "")
+        class_name = snake_to_pascal(module_name.replace("_type", ""))
+
+        # インポート文を追加
+        import_lines.append(f"from graphql_types.{module_name} import {class_name}")
+
+        # 非同期関数の生成
+        query_lines.append(
+            f"    @strawberry.field"
+            f"\n    async def all_{class_name.lower()}s(self) -> List[{class_name}]:"
+            f"\n        return await fetch_{class_name.lower()}s()  # asyncpgでデータを取得"
+        )
+
+        # 非同期関数を生成（asyncpgを使用してデータを取得）
+        query_lines.append(
+            f"\n"
+            f"async def fetch_{class_name.lower()}s():"
+            f"\n    conn = await asyncpg.connect(user='your_user', password='your_password', database='your_database', host='localhost')"
+            f"\n    rows = await conn.fetch('SELECT id, name FROM {class_name.lower()}')"
+            f"\n    await conn.close()"
+            f"\n    return [{class_name}(id=row['id'], name=row['name']) for row in rows]"
+        )
 
 
     schema_line = "schema = strawberry.Schema(query=Query)"
