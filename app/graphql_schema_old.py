@@ -22,8 +22,6 @@ from graphql_types.category_type import Category
 
 load_dotenv()
 
-
-
 async def fetch_filmcategorys():
     conn = await asyncpg.connect(
         user=os.getenv('DB_USER'),
@@ -32,9 +30,19 @@ async def fetch_filmcategorys():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM film_category')
+    rows = await conn.fetch('SELECT id, name FROM film_category_type')
     await conn.close()
-    return [FilmCategory(**row) for row in rows]
+    return [FilmCategory(id=row['id'], name=row['name']) for row in rows]
+
+@strawberry.type
+class Query:
+    @strawberry.field
+    async def filmcategorys(self) -> List[FilmCategory]:
+        return await fetch_filmcategorys()  # asyncpgでデータを取得
+
+    @strawberry.field
+    async def staffs(self) -> List[Staff]:
+        return await fetch_staffs()  # asyncpgでデータを取得
 
 
 async def fetch_staffs():
@@ -45,9 +53,12 @@ async def fetch_staffs():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM staff')
+    rows = await conn.fetch('SELECT id, name FROM staff_type')
     await conn.close()
-    return [Staff(**row) for row in rows]
+    return [Staff(id=row['id'], name=row['name']) for row in rows]
+    @strawberry.field
+    async def citys(self) -> List[City]:
+        return await fetch_citys()  # asyncpgでデータを取得
 
 
 async def fetch_citys():
@@ -58,9 +69,12 @@ async def fetch_citys():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM city')
+    rows = await conn.fetch('SELECT id, name FROM city_type')
     await conn.close()
-    return [City(**row) for row in rows]
+    return [City(id=row['id'], name=row['name']) for row in rows]
+    @strawberry.field
+    async def countrys(self) -> List[Country]:
+        return await fetch_countrys()  # asyncpgでデータを取得
 
 
 async def fetch_countrys():
@@ -71,9 +85,12 @@ async def fetch_countrys():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM country')
+    rows = await conn.fetch('SELECT id, name FROM country_type')
     await conn.close()
-    return [Country(**row) for row in rows]
+    return [Country(id=row['id'], name=row['name']) for row in rows]
+    @strawberry.field
+    async def rentals(self) -> List[Rental]:
+        return await fetch_rentals()  # asyncpgでデータを取得
 
 
 async def fetch_rentals():
@@ -84,9 +101,12 @@ async def fetch_rentals():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM rental')
+    rows = await conn.fetch('SELECT id, name FROM rental_type')
     await conn.close()
-    return [Rental(**row) for row in rows]
+    return [Rental(id=row['id'], name=row['name']) for row in rows]
+    @strawberry.field
+    async def customers(self) -> List[Customer]:
+        return await fetch_customers()  # asyncpgでデータを取得
 
 
 async def fetch_customers():
@@ -97,9 +117,12 @@ async def fetch_customers():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM customer')
+    rows = await conn.fetch('SELECT id, name FROM customer_type')
     await conn.close()
-    return [Customer(**row) for row in rows]
+    return [Customer(id=row['id'], name=row['name']) for row in rows]
+    @strawberry.field
+    async def actors(self) -> List[Actor]:
+        return await fetch_actors()  # asyncpgでデータを取得
 
 
 async def fetch_actors():
@@ -110,9 +133,12 @@ async def fetch_actors():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM actor')
+    rows = await conn.fetch('SELECT id, name FROM actor_type')
     await conn.close()
-    return [Actor(**row) for row in rows]
+    return [Actor(id=row['id'], name=row['name']) for row in rows]
+    @strawberry.field
+    async def inventorys(self) -> List[Inventory]:
+        return await fetch_inventorys()  # asyncpgでデータを取得
 
 
 async def fetch_inventorys():
@@ -123,9 +149,12 @@ async def fetch_inventorys():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM inventory')
+    rows = await conn.fetch('SELECT id, name FROM inventory_type')
     await conn.close()
-    return [Inventory(**row) for row in rows]
+    return [Inventory(id=row['id'], name=row['name']) for row in rows]
+    @strawberry.field
+    async def addresss(self) -> List[Address]:
+        return await fetch_addresss()  # asyncpgでデータを取得
 
 
 async def fetch_addresss():
@@ -136,9 +165,12 @@ async def fetch_addresss():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM address')
+    rows = await conn.fetch('SELECT id, name FROM address_type')
     await conn.close()
-    return [Address(**row) for row in rows]
+    return [Address(id=row['id'], name=row['name']) for row in rows]
+    @strawberry.field
+    async def filmactors(self) -> List[FilmActor]:
+        return await fetch_filmactors()  # asyncpgでデータを取得
 
 
 async def fetch_filmactors():
@@ -149,9 +181,12 @@ async def fetch_filmactors():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM film_actor')
+    rows = await conn.fetch('SELECT id, name FROM film_actor_type')
     await conn.close()
-    return [FilmActor(**row) for row in rows]
+    return [FilmActor(id=row['id'], name=row['name']) for row in rows]
+    @strawberry.field
+    async def stores(self) -> List[Store]:
+        return await fetch_stores()  # asyncpgでデータを取得
 
 
 async def fetch_stores():
@@ -162,9 +197,12 @@ async def fetch_stores():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM store')
+    rows = await conn.fetch('SELECT id, name FROM store_type')
     await conn.close()
-    return [Store(**row) for row in rows]
+    return [Store(id=row['id'], name=row['name']) for row in rows]
+    @strawberry.field
+    async def languages(self) -> List[Language]:
+        return await fetch_languages()  # asyncpgでデータを取得
 
 
 async def fetch_languages():
@@ -175,9 +213,12 @@ async def fetch_languages():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM language')
+    rows = await conn.fetch('SELECT id, name FROM language_type')
     await conn.close()
-    return [Language(**row) for row in rows]
+    return [Language(id=row['id'], name=row['name']) for row in rows]
+    @strawberry.field
+    async def payments(self) -> List[Payment]:
+        return await fetch_payments()  # asyncpgでデータを取得
 
 
 async def fetch_payments():
@@ -188,9 +229,12 @@ async def fetch_payments():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM payment')
+    rows = await conn.fetch('SELECT id, name FROM payment_type')
     await conn.close()
-    return [Payment(**row) for row in rows]
+    return [Payment(id=row['id'], name=row['name']) for row in rows]
+    @strawberry.field
+    async def categorys(self) -> List[Category]:
+        return await fetch_categorys()  # asyncpgでデータを取得
 
 
 async def fetch_categorys():
@@ -201,53 +245,8 @@ async def fetch_categorys():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM category')
+    rows = await conn.fetch('SELECT id, name FROM category_type')
     await conn.close()
-    return [Category(**row) for row in rows]
-
-@strawberry.type
-class Query:
-    @strawberry.field
-    async def filmcategorys(self) -> List[FilmCategory]:
-        return await fetch_filmcategorys()  # asyncpgでデータを取得
-    @strawberry.field
-    async def staffs(self) -> List[Staff]:
-        return await fetch_staffs()  # asyncpgでデータを取得
-    @strawberry.field
-    async def citys(self) -> List[City]:
-        return await fetch_citys()  # asyncpgでデータを取得
-    @strawberry.field
-    async def countrys(self) -> List[Country]:
-        return await fetch_countrys()  # asyncpgでデータを取得
-    @strawberry.field
-    async def rentals(self) -> List[Rental]:
-        return await fetch_rentals()  # asyncpgでデータを取得
-    @strawberry.field
-    async def customers(self) -> List[Customer]:
-        return await fetch_customers()  # asyncpgでデータを取得
-    @strawberry.field
-    async def actors(self) -> List[Actor]:
-        return await fetch_actors()  # asyncpgでデータを取得
-    @strawberry.field
-    async def inventorys(self) -> List[Inventory]:
-        return await fetch_inventorys()  # asyncpgでデータを取得
-    @strawberry.field
-    async def addresss(self) -> List[Address]:
-        return await fetch_addresss()  # asyncpgでデータを取得
-    @strawberry.field
-    async def filmactors(self) -> List[FilmActor]:
-        return await fetch_filmactors()  # asyncpgでデータを取得
-    @strawberry.field
-    async def stores(self) -> List[Store]:
-        return await fetch_stores()  # asyncpgでデータを取得
-    @strawberry.field
-    async def languages(self) -> List[Language]:
-        return await fetch_languages()  # asyncpgでデータを取得
-    @strawberry.field
-    async def payments(self) -> List[Payment]:
-        return await fetch_payments()  # asyncpgでデータを取得
-    @strawberry.field
-    async def categorys(self) -> List[Category]:
-        return await fetch_categorys()  # asyncpgでデータを取得
+    return [Category(id=row['id'], name=row['name']) for row in rows]
 
 schema = strawberry.Schema(query=Query)

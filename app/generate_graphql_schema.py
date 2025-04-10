@@ -6,8 +6,7 @@ from dotenv import load_dotenv
 # from typing import List
 
 load_dotenv()
-DATABASE_URL = os.getenv("DB_HOST")
-print(DATABASE_URL)
+
 
 TYPES_DIR = "./graphql_types"
 OUTPUT_FILE = "./graphql_schema.py"
@@ -26,24 +25,19 @@ def generate_schema_file():
         "import os",
         "from dotenv import load_dotenv",
     ]
-    query_lines = [
+    query_lines = []
+    schema_lines = [
         "@strawberry.type",
         "class Query:",
     ]
 
     for type_file in type_files:
         module_name = os.path.basename(type_file).replace(".py", "")
+        remove_type_name = module_name.replace("_type", "")
         class_name = snake_to_pascal(module_name.replace("_type", ""))
 
         # インポート文を追加
         import_lines.append(f"from graphql_types.{module_name} import {class_name}")
-
-        # 非同期関数の生成
-        query_lines.append(
-            f"    @strawberry.field"
-            f"\n    async def {class_name.lower()}s(self) -> List[{class_name}]:"
-            f"\n        return await fetch_{class_name.lower()}s()  # asyncpgでデータを取得"
-        )
 
         # 非同期関数を生成（asyncpgを使用してデータを取得）
         query_lines.append(
@@ -56,11 +50,17 @@ def generate_schema_file():
             f"\n        host=os.getenv('DB_HOST'),"
             f"\n        ssl=True"
             f"\n    )"
-            f"\n    rows = await conn.fetch('SELECT id, name FROM {class_name.lower()}')"
+            f"\n    rows = await conn.fetch('SELECT * FROM {remove_type_name}')"
             f"\n    await conn.close()"
-            f"\n    return [{class_name}(id=row['id'], name=row['name']) for row in rows]"
+            f"\n    return [{class_name}(**row) for row in rows]"
         )
-
+        
+        # 非同期関数の生成
+        schema_lines.append(
+            f"    @strawberry.field"
+            f"\n    async def {class_name.lower()}s(self) -> List[{class_name}]:"
+            f"\n        return await fetch_{class_name.lower()}s()  # asyncpgでデータを取得"
+        )
 
     schema_line = "schema = strawberry.Schema(query=Query)"
 
@@ -70,6 +70,8 @@ def generate_schema_file():
         f.write("\nload_dotenv()")
         f.write("\n\n")
         f.write("\n".join(query_lines))
+        f.write("\n\n")
+        f.write("\n".join(schema_lines))
         f.write("\n\n")
         f.write(schema_line)
 
