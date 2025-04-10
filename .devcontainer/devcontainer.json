@@ -1,7 +1,7 @@
 {
-  "name": "Python Dev Container",
+  "name": "fastapi-neon",
   "dockerComposeFile": "docker-compose.yml",
-  "service": "python",
+  "service": "graphql-api",
   "workspaceFolder": "/app",
   "customizations": {
     "vscode": {

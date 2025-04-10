@@ -1,2 +1,4 @@
-.env
-/app/__pycache__/
+.devcontainer/.env
+**/*.pyc
+**/*.pyo
+**/__pycache__/

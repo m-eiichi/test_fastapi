@@ -1,12 +1,5 @@
 FROM python:3.11
 
-# 必要なツールをインストール
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    python3-pip \
-    && rm -rf /var/lib/apt/lists/* 
-
 # 作業ディレクトリ
 WORKDIR /app
 
@@ -14,7 +7,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 環境変数を設定（Pythonのモジュール検索パスを追加）
-ENV PYTHONPATH=/app
+COPY entrypoint.sh /usr/local/bin/
 
-# CMD ["python"]
+RUN chmod +x /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
