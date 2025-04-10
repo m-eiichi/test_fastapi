@@ -1,5 +1,5 @@
 import strawberry
-from typing import List
+from typing import List, Optional
 import datetime
 import asyncpg
 import os
@@ -19,12 +19,10 @@ from graphql_types.country_type import Country
 from graphql_types.film_actor_type import FilmActor
 from graphql_types.category_type import Category
 
-
 load_dotenv()
 
 
-
-async def fetch_actors():
+async def fetch_actors(actor_id: Optional[int] = None):
     conn = await asyncpg.connect(
         user=os.getenv('DB_USER'),
         password=os.getenv('DB_PASSWORD'),
@@ -32,12 +30,19 @@ async def fetch_actors():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM actor')
+    query = 'SELECT * FROM actor'
+    conditions = []
+    values = []
+    if actor_id is not None:
+        conditions.append(f"actor_id = ${len(values) + 1}")
+        values.append(actor_id)
+    if conditions:
+        query += ' WHERE ' + ' AND '.join(conditions)
+    rows = await conn.fetch(query, *values)
     await conn.close()
-    return [Actor(**row) for row in rows]
+    return [Actor(**dict(row)) for row in rows]
 
-
-async def fetch_addresss():
+async def fetch_addresss(address_id: Optional[int] = None, city_id: Optional[int] = None):
     conn = await asyncpg.connect(
         user=os.getenv('DB_USER'),
         password=os.getenv('DB_PASSWORD'),
@@ -45,12 +50,22 @@ async def fetch_addresss():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM address')
+    query = 'SELECT * FROM address'
+    conditions = []
+    values = []
+    if address_id is not None:
+        conditions.append(f"address_id = ${len(values) + 1}")
+        values.append(address_id)
+    if city_id is not None:
+        conditions.append(f"city_id = ${len(values) + 1}")
+        values.append(city_id)
+    if conditions:
+        query += ' WHERE ' + ' AND '.join(conditions)
+    rows = await conn.fetch(query, *values)
     await conn.close()
-    return [Address(**row) for row in rows]
+    return [Address(**dict(row)) for row in rows]
 
-
-async def fetch_stores():
+async def fetch_stores(store_id: Optional[int] = None, manager_staff_id: Optional[int] = None, address_id: Optional[int] = None):
     conn = await asyncpg.connect(
         user=os.getenv('DB_USER'),
         password=os.getenv('DB_PASSWORD'),
@@ -58,12 +73,25 @@ async def fetch_stores():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM store')
+    query = 'SELECT * FROM store'
+    conditions = []
+    values = []
+    if store_id is not None:
+        conditions.append(f"store_id = ${len(values) + 1}")
+        values.append(store_id)
+    if manager_staff_id is not None:
+        conditions.append(f"manager_staff_id = ${len(values) + 1}")
+        values.append(manager_staff_id)
+    if address_id is not None:
+        conditions.append(f"address_id = ${len(values) + 1}")
+        values.append(address_id)
+    if conditions:
+        query += ' WHERE ' + ' AND '.join(conditions)
+    rows = await conn.fetch(query, *values)
     await conn.close()
-    return [Store(**row) for row in rows]
+    return [Store(**dict(row)) for row in rows]
 
-
-async def fetch_citys():
+async def fetch_citys(city_id: Optional[int] = None, country_id: Optional[int] = None):
     conn = await asyncpg.connect(
         user=os.getenv('DB_USER'),
         password=os.getenv('DB_PASSWORD'),
@@ -71,12 +99,22 @@ async def fetch_citys():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM city')
+    query = 'SELECT * FROM city'
+    conditions = []
+    values = []
+    if city_id is not None:
+        conditions.append(f"city_id = ${len(values) + 1}")
+        values.append(city_id)
+    if country_id is not None:
+        conditions.append(f"country_id = ${len(values) + 1}")
+        values.append(country_id)
+    if conditions:
+        query += ' WHERE ' + ' AND '.join(conditions)
+    rows = await conn.fetch(query, *values)
     await conn.close()
-    return [City(**row) for row in rows]
+    return [City(**dict(row)) for row in rows]
 
-
-async def fetch_inventorys():
+async def fetch_inventorys(inventory_id: Optional[int] = None, film_id: Optional[int] = None, store_id: Optional[int] = None):
     conn = await asyncpg.connect(
         user=os.getenv('DB_USER'),
         password=os.getenv('DB_PASSWORD'),
@@ -84,12 +122,25 @@ async def fetch_inventorys():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM inventory')
+    query = 'SELECT * FROM inventory'
+    conditions = []
+    values = []
+    if inventory_id is not None:
+        conditions.append(f"inventory_id = ${len(values) + 1}")
+        values.append(inventory_id)
+    if film_id is not None:
+        conditions.append(f"film_id = ${len(values) + 1}")
+        values.append(film_id)
+    if store_id is not None:
+        conditions.append(f"store_id = ${len(values) + 1}")
+        values.append(store_id)
+    if conditions:
+        query += ' WHERE ' + ' AND '.join(conditions)
+    rows = await conn.fetch(query, *values)
     await conn.close()
-    return [Inventory(**row) for row in rows]
+    return [Inventory(**dict(row)) for row in rows]
 
-
-async def fetch_filmcategorys():
+async def fetch_filmcategorys(film_id: Optional[int] = None, category_id: Optional[int] = None):
     conn = await asyncpg.connect(
         user=os.getenv('DB_USER'),
         password=os.getenv('DB_PASSWORD'),
@@ -97,12 +148,22 @@ async def fetch_filmcategorys():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM film_category')
+    query = 'SELECT * FROM film_category'
+    conditions = []
+    values = []
+    if film_id is not None:
+        conditions.append(f"film_id = ${len(values) + 1}")
+        values.append(film_id)
+    if category_id is not None:
+        conditions.append(f"category_id = ${len(values) + 1}")
+        values.append(category_id)
+    if conditions:
+        query += ' WHERE ' + ' AND '.join(conditions)
+    rows = await conn.fetch(query, *values)
     await conn.close()
-    return [FilmCategory(**row) for row in rows]
+    return [FilmCategory(**dict(row)) for row in rows]
 
-
-async def fetch_staffs():
+async def fetch_staffs(staff_id: Optional[int] = None, address_id: Optional[int] = None, store_id: Optional[int] = None):
     conn = await asyncpg.connect(
         user=os.getenv('DB_USER'),
         password=os.getenv('DB_PASSWORD'),
@@ -110,12 +171,25 @@ async def fetch_staffs():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM staff')
+    query = 'SELECT * FROM staff'
+    conditions = []
+    values = []
+    if staff_id is not None:
+        conditions.append(f"staff_id = ${len(values) + 1}")
+        values.append(staff_id)
+    if address_id is not None:
+        conditions.append(f"address_id = ${len(values) + 1}")
+        values.append(address_id)
+    if store_id is not None:
+        conditions.append(f"store_id = ${len(values) + 1}")
+        values.append(store_id)
+    if conditions:
+        query += ' WHERE ' + ' AND '.join(conditions)
+    rows = await conn.fetch(query, *values)
     await conn.close()
-    return [Staff(**row) for row in rows]
+    return [Staff(**dict(row)) for row in rows]
 
-
-async def fetch_customers():
+async def fetch_customers(customer_id: Optional[int] = None, store_id: Optional[int] = None, address_id: Optional[int] = None):
     conn = await asyncpg.connect(
         user=os.getenv('DB_USER'),
         password=os.getenv('DB_PASSWORD'),
@@ -123,12 +197,25 @@ async def fetch_customers():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM customer')
+    query = 'SELECT * FROM customer'
+    conditions = []
+    values = []
+    if customer_id is not None:
+        conditions.append(f"customer_id = ${len(values) + 1}")
+        values.append(customer_id)
+    if store_id is not None:
+        conditions.append(f"store_id = ${len(values) + 1}")
+        values.append(store_id)
+    if address_id is not None:
+        conditions.append(f"address_id = ${len(values) + 1}")
+        values.append(address_id)
+    if conditions:
+        query += ' WHERE ' + ' AND '.join(conditions)
+    rows = await conn.fetch(query, *values)
     await conn.close()
-    return [Customer(**row) for row in rows]
+    return [Customer(**dict(row)) for row in rows]
 
-
-async def fetch_payments():
+async def fetch_payments(payment_id: Optional[int] = None, customer_id: Optional[int] = None, staff_id: Optional[int] = None, rental_id: Optional[int] = None):
     conn = await asyncpg.connect(
         user=os.getenv('DB_USER'),
         password=os.getenv('DB_PASSWORD'),
@@ -136,12 +223,28 @@ async def fetch_payments():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM payment')
+    query = 'SELECT * FROM payment'
+    conditions = []
+    values = []
+    if payment_id is not None:
+        conditions.append(f"payment_id = ${len(values) + 1}")
+        values.append(payment_id)
+    if customer_id is not None:
+        conditions.append(f"customer_id = ${len(values) + 1}")
+        values.append(customer_id)
+    if staff_id is not None:
+        conditions.append(f"staff_id = ${len(values) + 1}")
+        values.append(staff_id)
+    if rental_id is not None:
+        conditions.append(f"rental_id = ${len(values) + 1}")
+        values.append(rental_id)
+    if conditions:
+        query += ' WHERE ' + ' AND '.join(conditions)
+    rows = await conn.fetch(query, *values)
     await conn.close()
-    return [Payment(**row) for row in rows]
+    return [Payment(**dict(row)) for row in rows]
 
-
-async def fetch_rentals():
+async def fetch_rentals(rental_id: Optional[int] = None, inventory_id: Optional[int] = None, customer_id: Optional[int] = None, staff_id: Optional[int] = None):
     conn = await asyncpg.connect(
         user=os.getenv('DB_USER'),
         password=os.getenv('DB_PASSWORD'),
@@ -149,12 +252,28 @@ async def fetch_rentals():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM rental')
+    query = 'SELECT * FROM rental'
+    conditions = []
+    values = []
+    if rental_id is not None:
+        conditions.append(f"rental_id = ${len(values) + 1}")
+        values.append(rental_id)
+    if inventory_id is not None:
+        conditions.append(f"inventory_id = ${len(values) + 1}")
+        values.append(inventory_id)
+    if customer_id is not None:
+        conditions.append(f"customer_id = ${len(values) + 1}")
+        values.append(customer_id)
+    if staff_id is not None:
+        conditions.append(f"staff_id = ${len(values) + 1}")
+        values.append(staff_id)
+    if conditions:
+        query += ' WHERE ' + ' AND '.join(conditions)
+    rows = await conn.fetch(query, *values)
     await conn.close()
-    return [Rental(**row) for row in rows]
+    return [Rental(**dict(row)) for row in rows]
 
-
-async def fetch_languages():
+async def fetch_languages(language_id: Optional[int] = None):
     conn = await asyncpg.connect(
         user=os.getenv('DB_USER'),
         password=os.getenv('DB_PASSWORD'),
@@ -162,12 +281,19 @@ async def fetch_languages():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM language')
+    query = 'SELECT * FROM language'
+    conditions = []
+    values = []
+    if language_id is not None:
+        conditions.append(f"language_id = ${len(values) + 1}")
+        values.append(language_id)
+    if conditions:
+        query += ' WHERE ' + ' AND '.join(conditions)
+    rows = await conn.fetch(query, *values)
     await conn.close()
-    return [Language(**row) for row in rows]
+    return [Language(**dict(row)) for row in rows]
 
-
-async def fetch_countrys():
+async def fetch_countrys(country_id: Optional[int] = None):
     conn = await asyncpg.connect(
         user=os.getenv('DB_USER'),
         password=os.getenv('DB_PASSWORD'),
@@ -175,12 +301,19 @@ async def fetch_countrys():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM country')
+    query = 'SELECT * FROM country'
+    conditions = []
+    values = []
+    if country_id is not None:
+        conditions.append(f"country_id = ${len(values) + 1}")
+        values.append(country_id)
+    if conditions:
+        query += ' WHERE ' + ' AND '.join(conditions)
+    rows = await conn.fetch(query, *values)
     await conn.close()
-    return [Country(**row) for row in rows]
+    return [Country(**dict(row)) for row in rows]
 
-
-async def fetch_filmactors():
+async def fetch_filmactors(actor_id: Optional[int] = None, film_id: Optional[int] = None):
     conn = await asyncpg.connect(
         user=os.getenv('DB_USER'),
         password=os.getenv('DB_PASSWORD'),
@@ -188,12 +321,22 @@ async def fetch_filmactors():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM film_actor')
+    query = 'SELECT * FROM film_actor'
+    conditions = []
+    values = []
+    if actor_id is not None:
+        conditions.append(f"actor_id = ${len(values) + 1}")
+        values.append(actor_id)
+    if film_id is not None:
+        conditions.append(f"film_id = ${len(values) + 1}")
+        values.append(film_id)
+    if conditions:
+        query += ' WHERE ' + ' AND '.join(conditions)
+    rows = await conn.fetch(query, *values)
     await conn.close()
-    return [FilmActor(**row) for row in rows]
+    return [FilmActor(**dict(row)) for row in rows]
 
-
-async def fetch_categorys():
+async def fetch_categorys(category_id: Optional[int] = None):
     conn = await asyncpg.connect(
         user=os.getenv('DB_USER'),
         password=os.getenv('DB_PASSWORD'),
@@ -201,53 +344,75 @@ async def fetch_categorys():
         host=os.getenv('DB_HOST'),
         ssl=True
     )
-    rows = await conn.fetch('SELECT * FROM category')
+    query = 'SELECT * FROM category'
+    conditions = []
+    values = []
+    if category_id is not None:
+        conditions.append(f"category_id = ${len(values) + 1}")
+        values.append(category_id)
+    if conditions:
+        query += ' WHERE ' + ' AND '.join(conditions)
+    rows = await conn.fetch(query, *values)
     await conn.close()
-    return [Category(**row) for row in rows]
+    return [Category(**dict(row)) for row in rows]
 
 @strawberry.type
 class Query:
+
     @strawberry.field
-    async def actors(self) -> List[Actor]:
-        return await fetch_actors()  # asyncpgでデータを取得
+    async def actors(self, actor_id: Optional[int] = None) -> List[Actor]:
+        return await fetch_actors(actor_id=actor_id)
+
     @strawberry.field
-    async def addresss(self) -> List[Address]:
-        return await fetch_addresss()  # asyncpgでデータを取得
+    async def addresss(self, address_id: Optional[int] = None, city_id: Optional[int] = None) -> List[Address]:
+        return await fetch_addresss(address_id=address_id, city_id=city_id)
+
     @strawberry.field
-    async def stores(self) -> List[Store]:
-        return await fetch_stores()  # asyncpgでデータを取得
+    async def stores(self, store_id: Optional[int] = None, manager_staff_id: Optional[int] = None, address_id: Optional[int] = None) -> List[Store]:
+        return await fetch_stores(store_id=store_id, manager_staff_id=manager_staff_id, address_id=address_id)
+
     @strawberry.field
-    async def citys(self) -> List[City]:
-        return await fetch_citys()  # asyncpgでデータを取得
+    async def citys(self, city_id: Optional[int] = None, country_id: Optional[int] = None) -> List[City]:
+        return await fetch_citys(city_id=city_id, country_id=country_id)
+
     @strawberry.field
-    async def inventorys(self) -> List[Inventory]:
-        return await fetch_inventorys()  # asyncpgでデータを取得
+    async def inventorys(self, inventory_id: Optional[int] = None, film_id: Optional[int] = None, store_id: Optional[int] = None) -> List[Inventory]:
+        return await fetch_inventorys(inventory_id=inventory_id, film_id=film_id, store_id=store_id)
+
     @strawberry.field
-    async def filmcategorys(self) -> List[FilmCategory]:
-        return await fetch_filmcategorys()  # asyncpgでデータを取得
+    async def filmcategorys(self, film_id: Optional[int] = None, category_id: Optional[int] = None) -> List[FilmCategory]:
+        return await fetch_filmcategorys(film_id=film_id, category_id=category_id)
+
     @strawberry.field
-    async def staffs(self) -> List[Staff]:
-        return await fetch_staffs()  # asyncpgでデータを取得
+    async def staffs(self, staff_id: Optional[int] = None, address_id: Optional[int] = None, store_id: Optional[int] = None) -> List[Staff]:
+        return await fetch_staffs(staff_id=staff_id, address_id=address_id, store_id=store_id)
+
     @strawberry.field
-    async def customers(self) -> List[Customer]:
-        return await fetch_customers()  # asyncpgでデータを取得
+    async def customers(self, customer_id: Optional[int] = None, store_id: Optional[int] = None, address_id: Optional[int] = None) -> List[Customer]:
+        return await fetch_customers(customer_id=customer_id, store_id=store_id, address_id=address_id)
+
     @strawberry.field
-    async def payments(self) -> List[Payment]:
-        return await fetch_payments()  # asyncpgでデータを取得
+    async def payments(self, payment_id: Optional[int] = None, customer_id: Optional[int] = None, staff_id: Optional[int] = None, rental_id: Optional[int] = None) -> List[Payment]:
+        return await fetch_payments(payment_id=payment_id, customer_id=customer_id, staff_id=staff_id, rental_id=rental_id)
+
     @strawberry.field
-    async def rentals(self) -> List[Rental]:
-        return await fetch_rentals()  # asyncpgでデータを取得
+    async def rentals(self, rental_id: Optional[int] = None, inventory_id: Optional[int] = None, customer_id: Optional[int] = None, staff_id: Optional[int] = None) -> List[Rental]:
+        return await fetch_rentals(rental_id=rental_id, inventory_id=inventory_id, customer_id=customer_id, staff_id=staff_id)
+
     @strawberry.field
-    async def languages(self) -> List[Language]:
-        return await fetch_languages()  # asyncpgでデータを取得
+    async def languages(self, language_id: Optional[int] = None) -> List[Language]:
+        return await fetch_languages(language_id=language_id)
+
     @strawberry.field
-    async def countrys(self) -> List[Country]:
-        return await fetch_countrys()  # asyncpgでデータを取得
+    async def countrys(self, country_id: Optional[int] = None) -> List[Country]:
+        return await fetch_countrys(country_id=country_id)
+
     @strawberry.field
-    async def filmactors(self) -> List[FilmActor]:
-        return await fetch_filmactors()  # asyncpgでデータを取得
+    async def filmactors(self, actor_id: Optional[int] = None, film_id: Optional[int] = None) -> List[FilmActor]:
+        return await fetch_filmactors(actor_id=actor_id, film_id=film_id)
+
     @strawberry.field
-    async def categorys(self) -> List[Category]:
-        return await fetch_categorys()  # asyncpgでデータを取得
+    async def categorys(self, category_id: Optional[int] = None) -> List[Category]:
+        return await fetch_categorys(category_id=category_id)
 
 schema = strawberry.Schema(query=Query)
