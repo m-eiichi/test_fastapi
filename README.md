@@ -53,3 +53,16 @@ Strawberry GraphQL がリクエストを解析し、対応するリゾルバ関�
 リゾルバ関数が asyncpg を使用してデータベースからデータを取得。
 データが GraphQL スキーマに基づいて整形され、クライアントに返却。
 このアーキテクチャにより、非同期処理を活用した効率的なデータ取得と、柔軟な GraphQL API の提供が可能になっています。
+
+### .env
+
+プロジェクト直下に.env ファイルを配置し以下を設定
+DATABASE_URL=postgresql+asyncpg://XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX?sslmode=require
+DB_USER=XXXXXXXXXXXX
+DB_PASSWORD=XXXXXXXXXXXX
+DB_NAME=XXXXXXXXXXXX
+DB_HOST=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+### DB
+
+neon に対応
