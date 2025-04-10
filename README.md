@@ -1,68 +1,55 @@
-psycopg2/asyncpgか何かでDBに接続
+# graphql api
 
----
+このプロジェクトは、Python を使用して構築された GraphQL API を提供するアプリケーションです。以下にアーキテクチャの概要を説明します。
 
-import os
-import glob
-import asyncpg
-from typing import List
+## 主な構成要素
 
-TYPES_DIR = "./graphql_types"
-OUTPUT_FILE = "./graphql_schema.py"
+### FastAPI:
 
-def snake_to_pascal(s: str) -> str:
-    return ''.join(word.capitalize() for word in s.split('_'))
+このプロジェクトの Web フレームワークとして使用されています。
+main.py で FastAPI アプリケーションが作成され、GraphQL エンドポイントが設定されています。
 
-def generate_schema_file():
-    type_files = glob.glob(os.path.join(TYPES_DIR, "*_type.py"))
+### Strawberry GraphQL:
 
-    import_lines = [
-        "import strawberry",
-        "from typing import List",
-        "import asyncpg",  # asyncpgをインポート
-    ]
-    query_lines = [
-        "@strawberry.type",
-        "class Query:",
-    ]
+GraphQL スキーマの定義とリゾルバの実装に使用されています。
+GraphQL スキーマは app/graphql_schema.py で定義され、strawberry.Schema を使用して構築されています。
 
-    for type_file in type_files:
-        module_name = os.path.basename(type_file).replace(".py", "")
-        class_name = snake_to_pascal(module_name.replace("_type", ""))
+### SQLAlchemy:
 
-        # インポート文を追加
-        import_lines.append(f"from graphql_types.{module_name} import {class_name}")
+データベース操作のために使用されています。
+モデルは app/models.py で定義されており、PostgreSQL データベースを対象としています。
 
-        # 非同期関数の生成
-        query_lines.append(
-            f"    @strawberry.field"
-            f"\n    async def all_{class_name.lower()}s(self) -> List[{class_name}]:"
-            f"\n        return await fetch_{class_name.lower()}s()  # asyncpgでデータを取得"
-        )
+### Asyncpg:
 
-        # 非同期関数を生成（asyncpgを使用してデータを取得）
-        query_lines.append(
-            f"\n"
-            f"async def fetch_{class_name.lower()}s():"
-            f"\n    conn = await asyncpg.connect(user='your_user', password='your_password', database='your_database', host='localhost')"
-            f"\n    rows = await conn.fetch('SELECT id, name FROM {class_name.lower()}')"
-            f"\n    await conn.close()"
-            f"\n    return [{class_name}(id=row['id'], name=row['name']) for row in rows]"
-        )
+非同期データベース接続を実現するために使用されています。
+データ取得ロジックは app/graphql*schema.py 内の fetch*\*関数で実装されています。
 
-    # スキーマ定義の行を追加
-    schema_line = "schema = strawberry.Schema(query=Query)"
+### 自動生成スクリプト:
 
-    # ファイルに書き込む
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        f.write("\n".join(import_lines))
-        f.write("\n\n")
-        f.write("\n".join(query_lines))
-        f.write("\n\n")
-        f.write(schema_line)
+GraphQL タイプやスキーマを自動生成するためのスクリプトが用意されています。
+generate_graphql_type.py: SQLAlchemy モデルから GraphQL タイプを生成。
+generate_graphql_schema.py: GraphQL スキーマを生成。
+Docker 環境:
 
-    print(f"✅ Generated: {OUTPUT_FILE}")
+### Docker
 
-if __name__ == "__main__":
-    generate_schema_file()
+.devcontainer ディレクトリ内に Docker 関連ファイルがあり、開発環境をコンテナ化しています。
+docker-compose.yml でサービスを定義し、uvicorn を使用してアプリケーションを起動します。
 
+### ディレクトリ構造
+
+app: アプリケーションの主要なコードが含まれるディレクトリ。
+models.py: データベースモデル。
+graphql_types/: GraphQL タイプ定義。
+graphql_schema.py: GraphQL スキーマとリゾルバ。
+main.py: アプリケーションのエントリポイント。
+.devcontainer: 開発環境の設定ファイル。
+README.md: プロジェクトの概要。
+
+### データフロー
+
+クライアントが GraphQL エンドポイントにリクエストを送信。
+Strawberry GraphQL がリクエストを解析し、対応するリゾルバ関数を呼び出す。
+リゾルバ関数が asyncpg を使用してデータベースからデータを取得。
+データが GraphQL スキーマに基づいて整形され、クライアントに返却。
+このアーキテクチャにより、非同期処理を活用した効率的なデータ取得と、柔軟な GraphQL API の提供が可能になっています。
