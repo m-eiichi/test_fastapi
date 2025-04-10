@@ -2,7 +2,12 @@
 
 import os
 import glob
+from dotenv import load_dotenv
 # from typing import List
+
+load_dotenv()
+DATABASE_URL = os.getenv("DB_HOST")
+print(DATABASE_URL)
 
 TYPES_DIR = "./graphql_types"
 OUTPUT_FILE = "./graphql_schema.py"
