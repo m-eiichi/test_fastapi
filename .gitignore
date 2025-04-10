@@ -1,2 +1,4 @@
 .devcontainer/.env
-/app/__pycache__/
+__pycache__/
+*.pyc
+*.pyo
