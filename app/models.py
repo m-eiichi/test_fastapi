@@ -158,38 +158,37 @@ class City(Base):
     address: Mapped[List['Address']] = relationship('Address', back_populates='city')
 
 
-# class Film(Base):
-#     __tablename__ = 'film'
-#     __table_args__ = (
-#         ForeignKeyConstraint(['language_id'], ['language.language_id'], ondelete='RESTRICT', onupdate='CASCADE', name='film_language_id_fkey'),
-#         PrimaryKeyConstraint('film_id', name='film_pkey'),
-#         Index('film_fulltext_idx', 'fulltext'),
-#         Index('idx_fk_language_id', 'language_id'),
-#         Index('idx_title', 'title')
-#     )
+class Film(Base):
+    __tablename__ = 'film'
+    __table_args__ = (
+        ForeignKeyConstraint(['language_id'], ['language.language_id'], ondelete='RESTRICT', onupdate='CASCADE', name='film_language_id_fkey'),
+        PrimaryKeyConstraint('film_id', name='film_pkey'),
+        Index('film_fulltext_idx', 'fulltext'),
+        Index('idx_fk_language_id', 'language_id'),
+        Index('idx_title', 'title'),
+        CheckConstraint('release_year >= 1900 AND release_year <= 2100', name='year_check')  # ←ここに移動
+    )
 
-    # film_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    # title: Mapped[str] = mapped_column(String(255))
-    # language_id: Mapped[int] = mapped_column(SmallInteger)
-    # rental_duration: Mapped[int] = mapped_column(SmallInteger, server_default=text('3'))
-    # rental_rate: Mapped[decimal.Decimal] = mapped_column(Numeric(4, 2), server_default=text('4.99'))
-    # replacement_cost: Mapped[decimal.Decimal] = mapped_column(Numeric(5, 2), server_default=text('19.99'))
-    # last_update: Mapped[datetime.datetime] = mapped_column(DateTime, server_default=text('now()'))
-    # fulltext: Mapped[Any] = mapped_column(TSVECTOR)
-    # description: Mapped[Optional[str]] = mapped_column(Text)
-    # release_year: Mapped[Optional[int]] = mapped_column(
-    #     Integer,  # カラムの型を Integer に変更
-    #     nullable=True,  # NULL を許容する
-    #     check=CheckConstraint('release_year >= 1900 AND release_year <= 2100', name='year_check')  # チェック制約
-    # )
-    # length: Mapped[Optional[int]] = mapped_column(SmallInteger)
-    # rating: Mapped[Optional[str]] = mapped_column(Enum('G', 'PG', 'PG-13', 'R', 'NC-17', name='mpaa_rating'), server_default=text("'G'::mpaa_rating"))
-    # special_features: Mapped[Optional[list]] = mapped_column(ARRAY(Text()))
+   
 
-    # language: Mapped['Language'] = relationship('Language', back_populates='film')
-    # film_actor: Mapped[List['FilmActor']] = relationship('FilmActor', back_populates='film')
-    # film_category: Mapped[List['FilmCategory']] = relationship('FilmCategory', back_populates='film')
-    # inventory: Mapped[List['Inventory']] = relationship('Inventory', back_populates='film')
+    film_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    title: Mapped[str] = mapped_column(String(255))
+    language_id: Mapped[int] = mapped_column(SmallInteger)
+    rental_duration: Mapped[int] = mapped_column(SmallInteger, server_default=text('3'))
+    rental_rate: Mapped[decimal.Decimal] = mapped_column(Numeric(4, 2), server_default=text('4.99'))
+    replacement_cost: Mapped[decimal.Decimal] = mapped_column(Numeric(5, 2), server_default=text('19.99'))
+    last_update: Mapped[datetime.datetime] = mapped_column(DateTime, server_default=text('now()'))
+    fulltext: Mapped[Any] = mapped_column(TSVECTOR)
+    description: Mapped[Optional[str]] = mapped_column(Text)
+    release_year: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    length: Mapped[Optional[int]] = mapped_column(SmallInteger)
+    rating: Mapped[Optional[str]] = mapped_column(Enum('G', 'PG', 'PG-13', 'R', 'NC-17', name='mpaa_rating'), server_default=text("'G'::mpaa_rating"))
+    special_features: Mapped[Optional[list]] = mapped_column(ARRAY(Text()))
+
+    language: Mapped['Language'] = relationship('Language', back_populates='film')
+    film_actor: Mapped[List['FilmActor']] = relationship('FilmActor', back_populates='film')
+    film_category: Mapped[List['FilmCategory']] = relationship('FilmCategory', back_populates='film')
+    inventory: Mapped[List['Inventory']] = relationship('Inventory', back_populates='film')
 
 
 class Address(Base):
