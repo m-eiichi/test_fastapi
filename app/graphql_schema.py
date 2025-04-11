@@ -9,6 +9,7 @@ from graphql_types.address_type import Address
 from graphql_types.store_type import Store
 from graphql_types.city_type import City
 from graphql_types.inventory_type import Inventory
+from graphql_types.film_type import Film
 from graphql_types.film_category_type import FilmCategory
 from graphql_types.staff_type import Staff
 from graphql_types.customer_type import Customer
@@ -139,6 +140,29 @@ async def fetch_inventorys(inventory_id: Optional[int] = None, film_id: Optional
     rows = await conn.fetch(query, *values)
     await conn.close()
     return [Inventory(**dict(row)) for row in rows]
+
+async def fetch_films(film_id: Optional[int] = None, language_id: Optional[int] = None):
+    conn = await asyncpg.connect(
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD'),
+        database=os.getenv('DB_NAME'),
+        host=os.getenv('DB_HOST'),
+        ssl=True
+    )
+    query = 'SELECT * FROM film'
+    conditions = []
+    values = []
+    if film_id is not None:
+        conditions.append(f"film_id = ${len(values) + 1}")
+        values.append(film_id)
+    if language_id is not None:
+        conditions.append(f"language_id = ${len(values) + 1}")
+        values.append(language_id)
+    if conditions:
+        query += ' WHERE ' + ' AND '.join(conditions)
+    rows = await conn.fetch(query, *values)
+    await conn.close()
+    return [Film(**dict(row)) for row in rows]
 
 async def fetch_filmcategorys(film_id: Optional[int] = None, category_id: Optional[int] = None):
     conn = await asyncpg.connect(
@@ -378,6 +402,10 @@ class Query:
     @strawberry.field
     async def inventorys(self, inventory_id: Optional[int] = None, film_id: Optional[int] = None, store_id: Optional[int] = None) -> List[Inventory]:
         return await fetch_inventorys(inventory_id=inventory_id, film_id=film_id, store_id=store_id)
+
+    @strawberry.field
+    async def films(self, film_id: Optional[int] = None, language_id: Optional[int] = None) -> List[Film]:
+        return await fetch_films(film_id=film_id, language_id=language_id)
 
     @strawberry.field
     async def filmcategorys(self, film_id: Optional[int] = None, category_id: Optional[int] = None) -> List[FilmCategory]:
