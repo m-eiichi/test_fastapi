@@ -39,12 +39,12 @@ docker-compose.yml でサービスを定義し、uvicorn を使用してアプ�
 
 ### ディレクトリ構造
 
-app: アプリケーションの主要なコードが含まれるディレクトリ。
-models.py: データベースモデル。
-graphql_types/: GraphQL タイプ定義。
-graphql_schema.py: GraphQL スキーマとリゾルバ。
-main.py: アプリケーションのエントリポイント。
-.devcontainer: 開発環境の設定ファイル。
+app: アプリケーションの主要なコードが含まれるディレクトリ。  
+models.py: データベースモデル。  
+graphql_types/: GraphQL タイプ定義。  
+graphql_schema.py: GraphQL スキーマとリゾルバ。  
+main.py: アプリケーションのエントリポイント。  
+.devcontainer: 開発環境の設定ファイル。  
 README.md: プロジェクトの概要。
 
 ### データフロー
