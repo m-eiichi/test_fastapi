@@ -1,9 +1,11 @@
 # graphql api
 
-このプロジェクトは、Python を使用して構築された GraphQL API を提供するアプリケーションです。  
+このプロジェクトは、Python を使用して構築された GraphQL API を提供するアプリケーションです。 
+dbはneonをデータ自体はdvdrentalを使用しています。
+
 以下にアーキテクチャの概要を説明します。
 
-### このプロジェクトの概要
+## プロジェクト概要
 
 1.sqlacodegen を使用して SQLAlchemyモデルを自動生成（初回のみ）
 
