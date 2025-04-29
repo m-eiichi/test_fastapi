@@ -1,7 +1,7 @@
 # graphql api
 
-このプロジェクトは、Python を使用して構築された GraphQL API を提供するアプリケーションです。 
-dbはneonをデータ自体はdvdrentalを使用しています。
+このプロジェクトは、Python を使用して構築された GraphQL API を提供するアプリケーションです。   
+dbはneonをデータ自体はDVD Rental Sample Databaseを使用しています。
 
 以下にアーキテクチャの概要を説明します。
 
