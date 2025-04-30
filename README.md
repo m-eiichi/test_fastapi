@@ -7,7 +7,12 @@ dbはneonをデータ自体はDVD Rental Sample Databaseを使用しています
 
 ## プロジェクト概要
 
-1.sqlacodegen を使用して SQLAlchemyモデルを自動生成（初回のみ）
+1.sqlacodegen を使用して SQLAlchemyモデルを自動生成（初回のみ）  
+　=> models.pyの生成  
+2.run_generators.shの実行(コンテナ内のappファルダ内で./run_generators.shを実行)  
+　=> graphql_typesフォルダに各type / graphql_schema.py　の生成
+3.Uvicornを使用してFastAPIアプリケーションを実行
+
 
 ## 主な構成要素
 
@@ -74,4 +79,29 @@ DB_HOST=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 neon に対応
 
+
+### その他
+
+#### model.py / graphql_types/xxxxxxx.py / graphql_schema.pyの関係性
+**model.py**
+役割：アプリケーション内のデータモデル定義
+Django / SQLAlchemy / Pydantic などで使われる、Pythonクラスベースのデータ定義
+GraphQLの型やスキーマ生成の元になる
+
+**graphql_types/xxxxxxx.py**
+役割：GraphQLの型定義（type definitions）を自動生成
+model.py などのモデル情報をもとに、GraphQLの type, input, enum などを生成
+
+**graphql_schema.py**
+役割：GraphQLスキーマを定義（型とリゾルバを紐づけ）
+graphql_types で定義された型を使って、実際にクエリやミューテーションを定義
+Graphene や Ariadne のような GraphQL ライブラリで使う
+
+```
+model.py（データモデル定義）
+     ↓
+graphql_types（GraphQL型定義を生成）
+     ↓
+graphql_schema.py（スキーマ・クエリ・リゾルバ構築）
+```
 
