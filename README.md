@@ -5,13 +5,15 @@ dbはneonをデータ自体はDVD Rental Sample Databaseを使用しています
 
 以下にアーキテクチャの概要を説明します。
 
-## プロジェクト概要
+## プロジェクト概要(実行手順)
 
-1.sqlacodegen を使用して SQLAlchemyモデルを自動生成（初回のみ）  
+1. vscodeで開発コンテナー：コンテナでフォルダを開くを実行  
+1. sqlacodegen を使用して SQLAlchemyモデルを自動生成（初回のみ）  
 　=> models.pyの生成  
-2.run_generators.shの実行(コンテナ内のappファルダ内で./run_generators.shを実行)  
+1. run_generators.shの実行(コンテナ内のターミナル（appファルダ）で./run_generators.shを実行)  
 　=> graphql_typesフォルダに各type / graphql_schema.py　の生成
-3.Uvicornを使用してFastAPIアプリケーションを実行
+1. Uvicornを使用してFastAPIアプリケーションを実行
+1. GraphQLのエンドポイントhttp://localhost:8000/graphqlが起動。
 
 
 ## 主な構成要素
@@ -20,16 +22,23 @@ dbはneonをデータ自体はDVD Rental Sample Databaseを使用しています
 
 このプロジェクトの Web フレームワークとして使用されています。  
 main.py で FastAPI アプリケーションが作成され、GraphQL エンドポイントが設定されています。
+     
+     FastAPIとは、PythonでWeb APIを高速に開発するための軽量で高性能なWebフレームワークです。
 
 ### Strawberry GraphQL:
 
-GraphQL スキーマの定義とリゾルバの実装に使用されています。  
+GraphQL **スキーマの定義とリゾルバの実装**に使用されています。  
 GraphQL スキーマは app/graphql_schema.py で定義され、strawberry.Schema を使用して構築されています。
 
-### SQLAlchemy:
+     Strawberry GraphQLは、PythonでGraphQL APIを簡単に構築するための型ヒントベースのGraphQLライブラリです。FastAPIと非常に相性が良く、Pythonのモダンな書き方（型アノテーション）に沿って、直感的にGraphQLスキーマやリゾルバを記述できます。
+
+### SQLAlchemyモデル:
 
 データベース操作のために使用されています。  
 モデルは app/models.py で定義されており、PostgreSQL データベースを対象としています。
+
+     SQLAlchemyモデルとは、PythonのORM（Object Relational Mapper）ライブラリであるSQLAlchemyを使って、データベースのテーブル構造をPythonクラスとして表現したものです。
+     SQLのテーブルをPythonクラスとして記述することで、Pythonコード内でデータベース操作を直感的に行える仕組みです。
 
 ### Asyncpg:
 
@@ -38,10 +47,8 @@ GraphQL スキーマは app/graphql_schema.py で定義され、strawberry.Schem
 
 ### 自動生成スクリプト:
 
-GraphQL タイプやスキーマを自動生成するためのスクリプトが用意されています。
 generate_graphql_type.py: SQLAlchemy モデルから GraphQL タイプを生成。
 generate_graphql_schema.py: GraphQL スキーマを生成。
-Docker 環境:
 
 ### Docker
 
@@ -69,10 +76,10 @@ Strawberry GraphQL がリクエストを解析し、対応するリゾルバ関�
 ### .env
 
 プロジェクト直下に.env ファイルを配置し以下を設定
-DATABASE_URL=postgresql+asyncpg://XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX?sslmode=require
-DB_USER=XXXXXXXXXXXX
-DB_PASSWORD=XXXXXXXXXXXX
-DB_NAME=XXXXXXXXXXXX
+DATABASE_URL=postgresql+asyncpg://XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX?sslmode=require  
+DB_USER=XXXXXXXXXXXX  
+DB_PASSWORD=XXXXXXXXXXXX  
+DB_NAME=XXXXXXXXXXXX  
 DB_HOST=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 ### DB
